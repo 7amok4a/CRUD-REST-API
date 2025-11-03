@@ -1,74 +1,39 @@
-import { Body, Controller, Delete, Get, Headers, NotFoundException, Param, ParseIntPipe, Post, Put, Req, Res } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put} from "@nestjs/common";
 import { CreateProductDto} from "./dtos/createProduct.dto";
 import { UpdateProductDto } from "./dtos/updateProduct.dto";
-import type { Request , Response } from "express";
-
-type ProductType = {id : number , title : string , price : number} ; 
+import { ProductSevice } from "./products.service";
 
 @Controller("api/products")
 export class ProductsController {
-
-    private products : ProductType[] = [ {id : 1 , title : "rise" , price : 200}]; 
-
-    @Post("express-way")
-    public createNewProductExpressWay(@Req() req : Request , @Res({passthrough : true}) res : Response ,@Headers() header : any) {
-        const body = req.body as { title: string; price: number };
-
-        const newProduct: ProductType = {
-            id: this.products.length + 1,
-            title: body.title,
-            price: body.price,
-        };
-        this.products.push(newProduct);
-        res.cookie('authcook' , 'this is cook' , {httpOnly : true , maxAge : 120 })
-        console.log(header) ; 
-        console.log(req.headers) ; 
-        return res.status(201).json(newProduct);
-    }
+ 
+    constructor( private readonly productService  : ProductSevice ) {}
 
 
     @Post()
     public createNewProduct(@Body() body : CreateProductDto) {
-        const newProduct : ProductType = {
-            id : this.products.length + 1 , 
-            title : body.title , 
-            price : body.price , 
-        }
-        this.products.push(newProduct) ; 
-        console.log(body) ; 
-        return this.products ; 
+        return this.productService.createProduct(body) ; 
     }
 
     // ~api/products 
     @Get()
     public getAllProducts() {
-        return this.products ; 
+        return this.productService.getAllProducts() ; 
     }
 
 
     @Get(":id") 
     public getSingleProduct(@Param("id" ,ParseIntPipe) id : number) {
-        const product = this.products.find(p => p.id === id) ;
-        if (!product) 
-                throw new NotFoundException("Product not found") ; 
-        return product ; 
+        return this.productService.getSingleProduct(id) ;
     }
 
     @Put(":id") 
-    public updateProduct(@Param("id") id : string , @Body()body : UpdateProductDto) {
-         const product = this.products.find(p => p.id === parseInt(id)) ;
-        if (!product) 
-                throw new NotFoundException("Product not found") ; 
-        console.log(body) ; 
-        return product ; 
+    public updateProduct(@Param("id" , ParseIntPipe) id : number , @Body()body : UpdateProductDto) {
+      return this.productService.updateProduct(id , body) ;
     }
 
 
     @Delete(":id") 
-    public DeleteProduct(@Param("id") id : string) {
-         const product = this.products.find(p => p.id === parseInt(id)) ;
-        if (!product) 
-                throw new NotFoundException("Product not found") ; 
-        return product ; 
+    public DeleteProduct(@Param("id" , ParseIntPipe) id : number) {
+        return this.productService.DeleteProduct(id) ; 
     }
 }
