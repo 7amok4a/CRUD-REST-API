@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Length, Max, Min } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Length, Max, Min, MinLength } from "class-validator";
 
 export class UpdateProductDto {
 // ahmed matter coding 
@@ -6,12 +6,20 @@ export class UpdateProductDto {
     @IsNotEmpty()
     @Length(5 , 25)
     @IsOptional()
-    title : string ;
+    title ?: string ;
 
+
+    @IsString() 
+    @IsNotEmpty()
+    @IsOptional()
+    @MinLength(5)
+    description ?: string ; 
+   
+   
     @IsNumber() 
     @IsNotEmpty()
     @Min(0)
     @Max(1000) 
     @IsOptional()
-    price : number ; 
+    price ?: number ; 
 }

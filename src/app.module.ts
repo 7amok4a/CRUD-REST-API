@@ -8,7 +8,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({isGlobal : true , envFilePath : [`.env`]}),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -25,7 +25,5 @@ import { ReviewsModule } from './reviews/reviews.module';
     }),
     UsersModule , ProductsModule , ReviewsModule
   ],
-  // controllers: [AppController],
-  // providers: [AppService],
 })
 export class AppModule {}
