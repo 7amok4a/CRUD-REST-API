@@ -5,10 +5,13 @@ import { User } from "./users.entity";
 import { RegisterDto } from "./dtos/register.dto";
 import * as bcrypt from "bcryptjs" 
 import { LoginDto } from "./dtos/loing.dto";
+import { JwtService } from "@nestjs/jwt";
+import { AcessTokenType, JWTPayloadType } from "src/utils/types";
 @Injectable()
 export class UsersService {
 
-    constructor(@InjectRepository(User) private readonly userRepositiry : Repository<User>) {}
+    constructor(@InjectRepository(User) private readonly userRepositiry : Repository<User> , 
+            private readonly jwtService : JwtService) {}
     
 
     public  async getAllUsers() {
@@ -16,7 +19,7 @@ export class UsersService {
     }
 
 
-    public async register (registerDto : RegisterDto) {
+    public async register (registerDto : RegisterDto)  : Promise<AcessTokenType>{
         const {email , password , username } = registerDto ; 
         const userFound = await this.userRepositiry.findOne ({where : {email}}) 
         if (userFound) 
@@ -26,13 +29,14 @@ export class UsersService {
 
         let newUser = this.userRepositiry.create({email , username , password : hashPassword}) ; 
         newUser = await this.userRepositiry.save(newUser) ;   
-        
-        return newUser ; 
+        const payload  : JWTPayloadType= {id : newUser.id , userType : newUser.userType } ; 
+        const acessToken = await this.jwtService.signAsync(payload) ; 
+        return {acessToken} ; 
     }
 
 
 
-    public async login (loginDto: LoginDto) {
+    public async login (loginDto: LoginDto)  : Promise<AcessTokenType> {
         const {email , password}  = loginDto ; 
         const user = await this.userRepositiry.findOne ({where : {email}}) 
         if (!user) 
@@ -43,6 +47,9 @@ export class UsersService {
         if (!compare) 
             throw new BadRequestException("password is not correct") ; 
         
-        return user ; 
+        const payload  : JWTPayloadType= {id : user.id , userType : user.userType } ; 
+        const acessToken = await this.jwtService.signAsync(payload) ; 
+
+        return {acessToken} ; 
     }
 }
