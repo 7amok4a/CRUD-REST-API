@@ -22,7 +22,7 @@ export class User {
     password : string ; 
 
     @Column({type : 'enum' , enum : UserType , default : UserType.NORMAL_USER})
-    userType : string ; 
+    userType : UserType ; 
 
     @Column({type : 'boolean' , default : false})
     isAccountVerified : boolean ;  

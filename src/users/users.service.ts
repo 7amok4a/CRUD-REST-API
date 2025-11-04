@@ -14,11 +14,6 @@ export class UsersService {
             private readonly jwtService : JwtService) {}
     
 
-    public  async getAllUsers() {
-        return await this.userRepositiry.find() ; 
-    }
-
-
     public async register (registerDto : RegisterDto)  : Promise<AcessTokenType>{
         const {email , password , username } = registerDto ; 
         const userFound = await this.userRepositiry.findOne ({where : {email}}) 
@@ -52,4 +47,16 @@ export class UsersService {
 
         return {acessToken} ; 
     }
+
+    public async getCurrentUser (id : number)  : Promise<User>{
+        const user = await this.userRepositiry.findOne({where : {id}}) ; 
+        if (!user) 
+            throw new BadRequestException ("user not found") ; 
+        return user ; 
+    }
+
+    public  async getAllUsers() : Promise<User[]> {
+        return await this.userRepositiry.find() ; 
+    }
+
 }
